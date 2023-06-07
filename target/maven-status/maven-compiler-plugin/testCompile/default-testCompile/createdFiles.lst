@@ -1,3 +1,6 @@
-login\Try.class
+login\OptionalHour.class
 login\API.class
-login\LoginTests.class
+login\Mission.class
+login\RequestBody.class
+login\Selenium.class
+login\OptionalDay.class
