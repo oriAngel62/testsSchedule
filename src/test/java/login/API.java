@@ -24,7 +24,9 @@ public class API {
     private static String userId;
     private static int missionId = 1;
 
-   
+    private static List<Mission> missionList;
+
+
 
     @BeforeClass
     public static void setup() {
@@ -171,7 +173,7 @@ public class API {
 
     @Test
     public void addMissionsFromListTest() {
-        List<Mission> missionList = generateMissionList();
+        missionList = generateMissionList();
 
         for (Mission mission : missionList) {
             // Prepare the request body
@@ -391,7 +393,7 @@ public class API {
 
     }
 
-    public void deleteMissionsFromList(List<Mission> missionList) {
+    public void deleteMissionsFromList() {
         for (Mission mission : missionList) {
             // Send the DELETE request to delete the mission
             Response deleteResponse = given()
