@@ -4,7 +4,13 @@ public class OptionalDay {
     private int id;
     private String day;
 
-    // Getter and Setter methods
+    public OptionalDay() {
+    }
+
+    public OptionalDay(int id, String day) {
+        this.id = id;
+        this.day = day;
+    }
 
     public int getId() {
         return id;

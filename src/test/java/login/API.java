@@ -3,32 +3,19 @@ package login;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import io.restassured.http.ContentType;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
+import static login.MissionGenerator.generateMissionList;
+
 import org.junit.Assert;
 import org.junit.Test;
-import com.google.gson.Gson;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
-import java.util.Random;
-import org.junit.jupiter.api.*;
+import java.util.*;
+
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-import java.util.Map;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class API {
@@ -36,6 +23,8 @@ public class API {
     private static String token;
     private static String userId;
     private static int missionId = 1;
+
+   
 
     @BeforeClass
     public static void setup() {
@@ -57,15 +46,23 @@ public class API {
 
     }
 
+    //devide find and change mission to 2 diffrent tests
     @Test
-    public void flow(){
+    public void basicFlow(){
         createUser();
         loginTest();
         addMissionTest();
-        findMission();
+        getAndFindMission();
         changeMission();
-
         deleteMission();
+    }
+@Test
+    public void testAlgoFlow(){
+        createUser();
+        loginTest();
+        addMissionsFromListTest();
+        deleteMissionsFromList();
+
     }
 
     @Order(1)
@@ -124,6 +121,8 @@ public class API {
         System.out.println("login success! token: " + token);
     }
 
+
+
     @Order(2)
     @Test
     public void addMissionTest() {
@@ -163,6 +162,7 @@ public class API {
                 .then()
                 .extract().response();
 
+        missionId = Integer.parseInt(response.getBody().asString());
         Assert.assertEquals(200, response.getStatusCode());
         System.out.println("mission added!");
 
@@ -170,8 +170,60 @@ public class API {
 
 
     @Test
+    public void addMissionsFromListTest() {
+        List<Mission> missionList = generateMissionList();
+
+        for (Mission mission : missionList) {
+            // Prepare the request body
+            RequestBody requestBody = new RequestBody();
+            requestBody.setProperty("title", mission.getTitle());
+            requestBody.setProperty("description", mission.getDescription());
+            requestBody.setProperty("type", mission.getType());
+            requestBody.setProperty("length", mission.getLength());
+            requestBody.setProperty("deadLine", mission.getDeadLine());
+            requestBody.setProperty("priority", mission.getPriority());
+
+            // Prepare optional days
+            List<OptionalDay> optionalDays = new ArrayList<>();
+            for (OptionalDay optionalDay : mission.getOptionalDays()) {
+                OptionalDay day = new OptionalDay();
+                day.setId(optionalDay.getId());
+                day.setDay(optionalDay.getDay());
+                optionalDays.add(day);
+            }
+            requestBody.setProperty("optionalDays", optionalDays);
+
+            // Prepare optional hours
+            List<OptionalHour> optionalHours = new ArrayList<>();
+            for (OptionalHour optionalHour : mission.getOptionalHours()) {
+                OptionalHour hour = new OptionalHour();
+                hour.setId(optionalHour.getId());
+                hour.setHour(optionalHour.getHour());
+                optionalHours.add(hour);
+            }
+            requestBody.setProperty("optionalHours", optionalHours);
+
+            // Send the POST request to add the mission
+            Response response = given()
+                    .contentType(ContentType.JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .body(requestBody.toJson())
+                    .when()
+                    .post("/Missions")
+                    .then()
+                    .extract().response();
+
+            mission.setId(Integer.parseInt(response.getBody().asString()));
+            Assert.assertEquals(200, response.getStatusCode());
+            System.out.println("Mission added!");
+        }
+    }
+
+
+
+    @Test
     @Order(4)
-    public void findMission() {
+    public void getAndFindMission() {
         // Fetch the missions using a GET request
         Response getResponse = given()
                 .contentType(ContentType.JSON)
@@ -217,44 +269,38 @@ public class API {
     }
 
 
-//    public Response addMission() {
-//        // Prepare the request body
-//        RequestBody requestBody = new RequestBody();
-//        missionId = 99;
-//        requestBody.setProperty("id", 99);
-//        requestBody.setProperty("title", "play basketball");
-//        requestBody.setProperty("description", "play");
-//        requestBody.setProperty("type", "sport");
-//        requestBody.setProperty("length", 1);
-//        // Prepare optional days
-//        List<OptionalDay> optionalDays = new ArrayList<>();
-//        OptionalDay day = new OptionalDay();
-//        day.setId(0);
-//        day.setDay("Sunday");
-//        optionalDays.add(day);
-//        requestBody.setProperty("optionalDays", optionalDays);
-//
-//        // Prepare optional hours
-//        List<OptionalHour> optionalHours = new ArrayList<>();
-//        OptionalHour hour = new OptionalHour();
-//        hour.setId(0);
-//        hour.setHour("12");
-//        optionalHours.add(hour);
-//        requestBody.setProperty("optionalHours", optionalHours);
-//
-//        requestBody.setProperty("deadLine", "2023-06-04T10:55:34.824Z");
-//        requestBody.setProperty("priority", 1);
-//
-//        // Send the POST request to add the mission
-//        return given()
-//                .contentType(ContentType.JSON)
-//                .header("Authorization", "Bearer " + token)
-//                .body(requestBody.toJson())
-//                .when()
-//                .post("/Missions")
-//                .then()
-//                .extract().response();
-//    }
+    //build 15 missions
+    // call to the algo
+    @Test
+    public void testAlgoApi() {
+        // Prepare the request body
+        RequestBody requestBody = new RequestBody();
+        requestBody.setProperty("setting", createSetting());
+        requestBody.setProperty("missionsId", new int[]{1});
+
+        // Send the POST request to /api/algo and validate the response
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/algo")
+                .then()
+                .extract().response();
+
+        // Assert that the GET request was successful
+        Assert.assertEquals(200, response.getStatusCode());
+    }
+
+    private Map<String, Object> createSetting() {
+        Map<String, Object> setting = new HashMap<>();
+        setting.put("id", 0);
+        setting.put("startHour", "2023-06-07T09:00:00");
+        setting.put("endHour", "2023-06-07T18:00:00");
+        setting.put("minGap", 15);
+        setting.put("maxHoursPerDay", 3);
+        setting.put("minTimeFrame", 15);
+        return setting;
+    }
 
     @Test
     @Order(5)
@@ -344,6 +390,40 @@ public class API {
         System.out.println("Delete mission ID: " + missionId);
 
     }
+
+    public void deleteMissionsFromList(List<Mission> missionList) {
+        for (Mission mission : missionList) {
+            // Send the DELETE request to delete the mission
+            Response deleteResponse = given()
+                    .contentType(ContentType.JSON)
+                    .header("Authorization", "Bearer " + token)
+                    .when()
+                    .delete("/Missions/" + mission.getId())
+                    .then()
+                    .extract().response();
+
+            // Assert the status code of the DELETE request
+            int deleteStatusCode = deleteResponse.getStatusCode();
+            Assert.assertEquals(204, deleteStatusCode);
+            System.out.println("Deleted mission ID: " + mission.getId());
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

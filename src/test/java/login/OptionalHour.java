@@ -4,7 +4,13 @@ public class OptionalHour {
     private int id;
     private String hour;
 
-    // Getter and Setter methods
+    public OptionalHour() {
+    }
+
+    public OptionalHour(int id, String hour) {
+        this.id = id;
+        this.hour = hour;
+    }
 
     public int getId() {
         return id;
@@ -22,4 +28,3 @@ public class OptionalHour {
         this.hour = hour;
     }
 }
-
