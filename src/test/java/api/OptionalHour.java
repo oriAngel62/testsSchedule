@@ -7,8 +7,7 @@ public class OptionalHour {
     public OptionalHour() {
     }
 
-    public OptionalHour(int id, String hour) {
-        this.id = id;
+    public OptionalHour(String hour) {
         this.hour = hour;
     }
 

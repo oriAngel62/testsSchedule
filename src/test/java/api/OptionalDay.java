@@ -7,8 +7,7 @@ public class OptionalDay {
     public OptionalDay() {
     }
 
-    public OptionalDay(int id, String day) {
-        this.id = id;
+    public OptionalDay(String day) {
         this.day = day;
     }
 

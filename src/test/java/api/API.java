@@ -23,6 +23,7 @@ public class API {
 
     private static String token;
     private static String userId;
+
     private static int missionId = 1;
 
     private static List<Mission> missionList;
@@ -98,6 +99,7 @@ public class API {
 
         // Print the token
         System.out.println("login success! token: " + token);
+
     }
     @Test
     public void basicFlow() {
@@ -134,6 +136,7 @@ public class API {
     @Test
     public void suggestMissionFlow() {
         addMissionTest();
+        //deleteUser();
         createUserAndLogIn();
         suggestMissionsTest();
     }
@@ -355,8 +358,8 @@ public class API {
     private Map<String, Object> createSetting() {
         Map<String, Object> setting = new HashMap<>();
         setting.put("id", 0);
-        setting.put("startHour", "2023-06-07T09:00:00");
-        setting.put("endHour", "2023-06-07T18:00:00");
+        setting.put("startHour", "2023-06-04T09:00:00.000Z");
+        setting.put("endHour", "2023-06-10T18:00:00.000Z");
         setting.put("minGap", 15);
         setting.put("maxHoursPerDay", 3);
         setting.put("minTimeFrame", 15);
