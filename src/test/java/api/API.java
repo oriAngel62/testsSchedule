@@ -1,4 +1,4 @@
-package login;
+package api;
 
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
-import static login.MissionGenerator.generateMissionList;
+import static api.MissionGenerator.generateMissionList;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,12 +27,11 @@ public class API {
     private static List<Mission> missionList;
 
 
-
     @BeforeClass
     public static void setup() {
         RestAssured.baseURI = "https://localhost:7204/api";
         RestAssured.config = RestAssured.config().sslConfig(new SSLConfig().relaxedHTTPSValidation());
-        userId  = getSaltString();
+        userId = getSaltString();
     }
 
     private static String getSaltString() {
@@ -50,26 +49,30 @@ public class API {
 
     //devide find and change mission to 2 diffrent tests
     @Test
-    public void basicFlow(){
+    public void basicFlow() {
         createUser();
         loginTest();
         addMissionTest();
         getAndFindMission();
         changeMission();
         deleteMission();
+        deleteUser();
     }
-@Test
-    public void testAlgoFlow(){
+
+    @Test
+    public void testAlgoFlow() {
         createUser();
         loginTest();
         addMissionsFromListTest();
+        testAlgoApi();
         deleteMissionsFromList();
+        deleteUser();
 
     }
 
     @Order(1)
     @Test
-    public void createUser(){
+    public void createUser() {
         RequestBody requestBody = new RequestBody();
         requestBody.setProperty("id", userId);
         requestBody.setProperty("name", "ori");
@@ -91,6 +94,23 @@ public class API {
         // Assert the status code
         Assert.assertEquals(200, statusCode);
         System.out.println("Create User ID: " + userId);
+    }
+
+    @Test
+    public void deleteUser() {
+        // Send the DELETE request to delete the user
+        Response response = given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .delete("/Users/" + userId)
+                .then()
+                .extract().response();
+
+        // Get the status code
+        int statusCode = response.getStatusCode();
+        // Assert the status code
+        Assert.assertEquals(204, statusCode);
+        System.out.println("Deleted User ID: " + userId);
     }
 
     @Order(2)
@@ -122,7 +142,6 @@ public class API {
         // Print the token
         System.out.println("login success! token: " + token);
     }
-
 
 
     @Order(2)
@@ -222,7 +241,6 @@ public class API {
     }
 
 
-
     @Test
     @Order(4)
     public void getAndFindMission() {
@@ -278,20 +296,25 @@ public class API {
         // Prepare the request body
         RequestBody requestBody = new RequestBody();
         requestBody.setProperty("setting", createSetting());
-        requestBody.setProperty("missionsId", new int[]{1});
+
+        // Get the mission IDs from the missionList
+        int[] missionIds = missionList.stream().mapToInt(Mission::getId).toArray();
+        requestBody.setProperty("missionsId", missionIds);
 
         // Send the POST request to /api/algo and validate the response
         Response response = given()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + token)
+                .body(requestBody.toJson()) // Pass the request body in the POST request
                 .when()
-                .get("/algo")
+                .post("/algo") // Change the HTTP method to POST
                 .then()
                 .extract().response();
 
-        // Assert that the GET request was successful
+        // Assert that the POST request was successful
         Assert.assertEquals(200, response.getStatusCode());
     }
+
 
     private Map<String, Object> createSetting() {
         Map<String, Object> setting = new HashMap<>();
@@ -361,7 +384,7 @@ public class API {
             String description = missionMap.get("description").toString();
 
             // Check if the mission matches the criteria
-            if (missionId == id ) {
+            if (missionId == id) {
                 missionFound = true;
                 // Assert that the mission details have been updated
                 Assert.assertEquals("Updated Title", title);
@@ -371,7 +394,6 @@ public class API {
         }
         System.out.println("Changed mission ID: " + missionId);
     }
-
 
 
     @Test
@@ -411,23 +433,7 @@ public class API {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 //    @Test
 //    public void US(){
@@ -469,5 +475,4 @@ public class API {
 ////        driver.quit();
 //    }
 
-}
 

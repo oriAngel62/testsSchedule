@@ -1,4 +1,4 @@
-package login;
+package api;
 
 public class OptionalDay {
     private int id;

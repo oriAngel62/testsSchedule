@@ -1,4 +1,4 @@
-package login;
+package api;
 
 public class OptionalHour {
     private int id;

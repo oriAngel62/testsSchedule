@@ -1,6 +1,8 @@
-login\OptionalHour.class
-login\API.class
-login\Mission.class
-login\RequestBody.class
-login\Selenium.class
-login\OptionalDay.class
+api\Mission.class
+api\MissionGenerator.class
+api\OptionalDay.class
+api\OptionalHour.class
+api\API.class
+ui\Selenium.class
+api\RequestBody.class
+ui\LoginTest.class

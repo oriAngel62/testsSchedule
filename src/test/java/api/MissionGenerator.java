@@ -1,22 +1,20 @@
-package login;
+package api;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.awt.*;
 
 
 public class MissionGenerator {
     public static List<Mission> generateMissionList() {
         List<Mission> missionList = new ArrayList<>();
 
-        for(int i=0; i<15; i++) {
+        for(int i=0; i<1; i++) {
             // Mission 1
             Mission mission1 = new Mission();
             mission1.setTitle("Mission 1");
             mission1.setDescription("Description for Mission 1");
             mission1.setType("Type for Mission 1");
             mission1.setLength(60);
-            mission1.setDeadLine("2023-06-30T10:00:00Z");
+            mission1.setDeadLine("2023-06-12T10:00:00Z");
             mission1.setPriority(1);
 
             // Set optional days for Mission 1
