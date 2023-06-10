@@ -3,6 +3,7 @@ package api;
 import io.restassured.RestAssured;
 import io.restassured.config.SSLConfig;
 import io.restassured.http.ContentType;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 import io.restassured.response.Response;
@@ -27,12 +28,12 @@ public class API {
     private static List<Mission> missionList;
 
 
-    @BeforeClass
-    public static void setup() {
-        RestAssured.baseURI = "https://localhost:7204/api";
-        RestAssured.config = RestAssured.config().sslConfig(new SSLConfig().relaxedHTTPSValidation());
-        userId = getSaltString();
-    }
+//    @BeforeClass
+//    public static void setup() {
+//        RestAssured.baseURI = "https://localhost:7204/api";
+//        RestAssured.config = RestAssured.config().sslConfig(new SSLConfig().relaxedHTTPSValidation());
+//        userId = getSaltString();
+//    }
 
     private static String getSaltString() {
         String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -47,37 +48,16 @@ public class API {
 
     }
 
-    //devide find and change mission to 2 diffrent tests
-    @Test
-    public void basicFlow() {
-        createUser();
-        loginTest();
-        addMissionTest();
-        getAndFindMission();
-        changeMission();
-        deleteMission();
-        deleteUser();
-    }
-
-    @Test
-    public void testAlgoFlow() {
-        createUser();
-        loginTest();
-        addMissionsFromListTest();
-        testAlgoApi();
-        deleteMissionsFromList();
-        deleteUser();
-
-    }
-
-    @Order(1)
-    @Test
-    public void createUser() {
+    @BeforeClass
+    public static void createUserAndLogIn() {
+        RestAssured.baseURI = "https://localhost:7204/api";
+        RestAssured.config = RestAssured.config().sslConfig(new SSLConfig().relaxedHTTPSValidation());
+        userId = getSaltString();
         RequestBody requestBody = new RequestBody();
         requestBody.setProperty("id", userId);
-        requestBody.setProperty("name", "ori");
-        requestBody.setProperty("email", "ori@gmail.com");
-        requestBody.setProperty("password", "1234");
+        requestBody.setProperty("name", userId);
+        requestBody.setProperty("email", userId +"@gmail.com");
+        requestBody.setProperty("password", userId);
 
         Response response = given()
                 .header("Content-type", "application/json")
@@ -94,10 +74,73 @@ public class API {
         // Assert the status code
         Assert.assertEquals(200, statusCode);
         System.out.println("Create User ID: " + userId);
+        requestBody = new RequestBody();
+        requestBody.setProperty("id", userId);
+        requestBody.setProperty("password", userId);
+
+        response = given()
+                .header("Content-type", "application/json")
+                .and()
+                .body(requestBody.toJson())
+                .when()
+                .post("/Users/Login")
+                .then()
+                .extract().response();
+
+        // Get the status code
+        statusCode = response.getStatusCode();
+
+        // Assert the status code
+        Assert.assertEquals(200, statusCode);
+
+        // Get the token from the response
+        token = response.jsonPath().getString("token");
+
+        // Print the token
+        System.out.println("login success! token: " + token);
+    }
+    @Test
+    public void basicFlow() {
+//        createUser();
+//        loginTest();
+        addMissionTest();
+        getAndFindMission();
+        changeMission();
+        deleteMission();
+//        deleteUser();
     }
 
     @Test
-    public void deleteUser() {
+    public void findMissionFlow() {
+        addMissionTest();
+        getAndFindMission();
+        deleteMission();
+    }
+
+    @Test
+    public void changeMissionFlow() {
+        addMissionTest();
+        changeMission();
+        deleteMission();
+    }
+
+    @Test
+    public void algoFlow() {
+        addMissionsFromListTest();
+        testAlgoApi();
+        deleteMissionsFromList();
+    }
+
+    @Test
+    public void suggestMissionFlow() {
+        addMissionTest();
+        createUserAndLogIn();
+        suggestMissionsTest();
+    }
+
+
+    @AfterClass
+    public static void deleteUser() {
         // Send the DELETE request to delete the user
         Response response = given()
                 .header("Authorization", "Bearer " + token)
@@ -113,13 +156,11 @@ public class API {
         System.out.println("Deleted User ID: " + userId);
     }
 
-    @Order(2)
-    @BeforeClass
-    public static void loginTest() {
+    public void loginTest() {
 
         RequestBody requestBody = new RequestBody();
-        requestBody.setProperty("id", "8");
-        requestBody.setProperty("password", "1234");
+        requestBody.setProperty("id", "string");
+        requestBody.setProperty("password", "string");
 
         Response response = given()
                 .header("Content-type", "application/json")
@@ -144,8 +185,6 @@ public class API {
     }
 
 
-    @Order(2)
-    @Test
     public void addMissionTest() {
         // Prepare the request body
         RequestBody requestBody = new RequestBody();
@@ -190,7 +229,6 @@ public class API {
     }
 
 
-    @Test
     public void addMissionsFromListTest() {
         missionList = generateMissionList();
 
@@ -241,8 +279,6 @@ public class API {
     }
 
 
-    @Test
-    @Order(4)
     public void getAndFindMission() {
         // Fetch the missions using a GET request
         Response getResponse = given()
@@ -291,7 +327,7 @@ public class API {
 
     //build 15 missions
     // call to the algo
-    @Test
+
     public void testAlgoApi() {
         // Prepare the request body
         RequestBody requestBody = new RequestBody();
@@ -327,8 +363,6 @@ public class API {
         return setting;
     }
 
-    @Test
-    @Order(5)
     public void changeMission() {
         // Prepare the request body with the updated mission details
         RequestBody requestBody = new RequestBody();
@@ -395,9 +429,6 @@ public class API {
         System.out.println("Changed mission ID: " + missionId);
     }
 
-
-    @Test
-    @Order(6)
     public void deleteMission() {
         // Send the DELETE request to delete the mission
         Response deleteResponse = given()
@@ -433,46 +464,51 @@ public class API {
         }
     }
 
+    public void suggestMissionsTest() {
+        // Prepare the request parameters
+        String type = "sport";
+
+        // Send the GET request to suggest missions
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get("/Missions/SuggestMissions?type=sport")
+                .then()
+                .extract().response();
+
+        // Assert that the GET request was successful
+        int statusCode = response.getStatusCode();
+        Assert.assertEquals(200, statusCode);
+
+        // Get the list of suggested missions
+        List<Object> suggestedMissions = response.jsonPath().getList("$");
+
+        // Assert that the suggested missions list is not empty
+        Assert.assertFalse(suggestedMissions.isEmpty());
+
+//        // Assert the properties of each suggested mission
+//        for (Object mission : suggestedMissions) {
+//            // Convert the mission object to a map for easy access to its properties
+//            Map<String, Object> missionMap = (Map<String, Object>) mission;
+//            Assert.assertTrue(missionMap.containsKey("id"));
+//            Assert.assertTrue(missionMap.containsKey("title"));
+//            Assert.assertTrue(missionMap.containsKey("description"));
+//            Assert.assertTrue(missionMap.containsKey("type"));
+//            Assert.assertTrue(missionMap.containsKey("startDate"));
+//            Assert.assertTrue(missionMap.containsKey("endDate"));
+//            Assert.assertTrue(missionMap.containsKey("allDay"));
+//
+//            // Optionally, you can add more specific assertions for the values of each property
+//
+//            // Example:
+//            // Assert.assertEquals("Expected Title", missionMap.get("title").toString());
+//        }
+
+        System.out.println("Suggested missions: " + suggestedMissions);
+    }
+
 }
 
-//    @Test
-//    public void US(){
-//        // Set the path to the ChromeDriver executable
-//        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ori\\Desktop\\tests\\chromedriver.exe");
-//
-//        // Configure Chrome options
-//        ChromeOptions options = new ChromeOptions();
-//        options.addArguments("--headless"); // Run Chrome in headless mode (without opening a browser window)
-//
-//        // Create a new instance of the ChromeDriver
-//        WebDriver driver = new ChromeDriver(options);
-//
-//        // Navigate to the URL
-//        driver.get("http://localhost:3000");
-//
-//        // Find the <p> element with the text '[Your Self Introduction]'
-//        WebElement introElement = driver.findElement(By.xpath("//a[contains(text(), 'schedule')]"));
-//        introElement.click();
-//
-//        // Wait for the page to load
-////        WebDriverWait wait = new WebDriverWait(driver, 10);
-////        wait.until(ExpectedConditions.urlContains("/dd"));
-//
-//        // Find the <div> element with the specified attributes
-//        WebElement divElement = driver.findElement(By.xpath("//div[@tabindex='0' and @role='button' and @aria-expanded='false' and @aria-haspopup='listbox']"));
-//
-//        // Assert that the <div> element exists
-//        Assert.assertNotNull(divElement);
-//
-//        // Wait for some time to see the selected element
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        // Close the browser
-////        driver.quit();
-//    }
 
 
