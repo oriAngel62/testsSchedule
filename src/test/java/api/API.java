@@ -5,10 +5,10 @@ import io.restassured.config.SSLConfig;
 import io.restassured.http.ContentType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.jupiter.api.*;
 import io.restassured.response.Response;
+
+import static api.MissionGenerator.*;
 import static io.restassured.RestAssured.given;
-import static api.MissionGenerator.generateMissionList;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,6 +25,9 @@ public class API {
     private static String userId;
 
     private static int missionId = 1;
+
+   private static  Mission mission = generateMissionFullTemplate("play basketball", "play", "sport",
+           60, "2023-06-10T10:00:00", 1, Arrays.asList("Sunday", "Monday"), Arrays.asList("12:00:00", "16:00:00"));
 
     private static List<Mission> missionList;
 
@@ -105,7 +108,7 @@ public class API {
     public void basicFlow() {
 //        createUser();
 //        loginTest();
-        addMissionTest();
+        addMissionTest(mission);
         getAndFindMission();
         changeMission();
         deleteMission();
@@ -114,14 +117,14 @@ public class API {
 
     @Test
     public void findMissionFlow() {
-        addMissionTest();
+        addMissionTest(mission);
         getAndFindMission();
         deleteMission();
     }
 
     @Test
     public void changeMissionFlow() {
-        addMissionTest();
+        addMissionTest(mission);
         changeMission();
         deleteMission();
     }
@@ -135,7 +138,7 @@ public class API {
 
     @Test
     public void suggestMissionFlow() {
-        addMissionTest();
+        addMissionTest(mission);
         //deleteUser();
         createUserAndLogIn();
         suggestMissionsTest();
@@ -188,32 +191,35 @@ public class API {
     }
 
 
-    public void addMissionTest() {
+    public void addMissionTest(Mission mission) {
         // Prepare the request body
         RequestBody requestBody = new RequestBody();
-        //requestBody.setProperty("id", 99);
-        requestBody.setProperty("title", "playing basketball");
-        requestBody.setProperty("description", "play");
-        requestBody.setProperty("type", "sport");
-        requestBody.setProperty("length", 2);
+        requestBody.setProperty("title", mission.getTitle());
+        requestBody.setProperty("description", mission.getDescription());
+        requestBody.setProperty("type", mission.getType());
+        requestBody.setProperty("length", mission.getLength());
+        requestBody.setProperty("deadLine", mission.getDeadLine());
+        requestBody.setProperty("priority", mission.getPriority());
+
         // Prepare optional days
         List<OptionalDay> optionalDays = new ArrayList<>();
-        OptionalDay day = new OptionalDay();
-        day.setId(0);
-        day.setDay("Sunday");
-        optionalDays.add(day);
+        for (OptionalDay optionalDay : mission.getOptionalDays()) {
+            OptionalDay day = new OptionalDay();
+            day.setId(optionalDay.getId());
+            day.setDay(optionalDay.getDay());
+            optionalDays.add(day);
+        }
         requestBody.setProperty("optionalDays", optionalDays);
 
         // Prepare optional hours
         List<OptionalHour> optionalHours = new ArrayList<>();
-        OptionalHour hour = new OptionalHour();
-        hour.setId(0);
-        hour.setHour("12:00:00");
-        optionalHours.add(hour);
+        for (OptionalHour optionalHour : mission.getOptionalHours()) {
+            OptionalHour hour = new OptionalHour();
+            hour.setId(optionalHour.getId());
+            hour.setHour(optionalHour.getHour());
+            optionalHours.add(hour);
+        }
         requestBody.setProperty("optionalHours", optionalHours);
-
-        requestBody.setProperty("deadLine", "2023-06-04T10:55:34.824Z");
-        requestBody.setProperty("priority", 1);
 
         // Send the POST request to add the mission
         Response response = given()
@@ -228,7 +234,6 @@ public class API {
         missionId = Integer.parseInt(response.getBody().asString());
         Assert.assertEquals(200, response.getStatusCode());
         System.out.println("mission added!");
-
     }
 
 
@@ -313,7 +318,7 @@ public class API {
             String type = missionMap.get("type").toString();
 
             // Check if the mission matches the criteria
-            if (title.equals("playing basketball") && type.equals("sport")) {
+            if (title.equals("play basketball") && type.equals("sport")) {
                 missionFound = true;
                 missionId = (int) missionMap.get("id");
                 break;
@@ -489,24 +494,6 @@ public class API {
 
         // Assert that the suggested missions list is not empty
         Assert.assertFalse(suggestedMissions.isEmpty());
-
-//        // Assert the properties of each suggested mission
-//        for (Object mission : suggestedMissions) {
-//            // Convert the mission object to a map for easy access to its properties
-//            Map<String, Object> missionMap = (Map<String, Object>) mission;
-//            Assert.assertTrue(missionMap.containsKey("id"));
-//            Assert.assertTrue(missionMap.containsKey("title"));
-//            Assert.assertTrue(missionMap.containsKey("description"));
-//            Assert.assertTrue(missionMap.containsKey("type"));
-//            Assert.assertTrue(missionMap.containsKey("startDate"));
-//            Assert.assertTrue(missionMap.containsKey("endDate"));
-//            Assert.assertTrue(missionMap.containsKey("allDay"));
-//
-//            // Optionally, you can add more specific assertions for the values of each property
-//
-//            // Example:
-//            // Assert.assertEquals("Expected Title", missionMap.get("title").toString());
-//        }
 
         System.out.println("Suggested missions: " + suggestedMissions);
     }
