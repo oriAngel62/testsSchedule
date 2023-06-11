@@ -111,5 +111,4 @@ public class Mission {
         this.setting = setting;
     }
 
-
 }

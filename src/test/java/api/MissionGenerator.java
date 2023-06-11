@@ -80,8 +80,8 @@ public class MissionGenerator{
                 Arrays.asList("16:00:00", "12:00:00"));
 
         missionList.add(mission1);
-//        missionList.add(mission2);
-//        missionList.add(mission3);
+        missionList.add(mission2);
+        missionList.add(mission3);
         return missionList;
     }
 }
