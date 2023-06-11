@@ -357,6 +357,7 @@ public class API {
 
         // Assert that the POST request was successful
         Assert.assertEquals(200, response.getStatusCode());
+        System.out.println("Algo output: " + response.getBody().asString());
     }
 
 
@@ -414,7 +415,6 @@ public class API {
         // Assert that the missions list is not empty
         Assert.assertFalse(missions.isEmpty());
 
-        boolean missionFound = false;
 
 
         // Iterate through the missions
@@ -427,7 +427,6 @@ public class API {
 
             // Check if the mission matches the criteria
             if (missionId == id) {
-                missionFound = true;
                 // Assert that the mission details have been updated
                 Assert.assertEquals("Updated Title", title);
                 Assert.assertEquals("Updated Description", description);
