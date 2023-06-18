@@ -1,4 +1,8 @@
 package api;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,17 +70,35 @@ public class MissionGenerator{
         return mission;
     }
 
+    public static String deadLineTime(){
+        LocalDateTime currentDateTime = LocalDateTime.now();
 
+        // Find the next Saturday (end of the week)
+        LocalDate endOfWeek = currentDateTime.toLocalDate();
+        while (endOfWeek.getDayOfWeek() != DayOfWeek.SATURDAY) {
+            endOfWeek = endOfWeek.plusDays(1);
+        }
+
+        // Format the end of the week date and time
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        String formattedEndOfWeek = endOfWeek.atTime(23, 59, 59).format(formatter);
+
+        return formattedEndOfWeek;
+
+    }
+
+    //chang
     public static List<Mission> generateMissionList() {
         List<Mission> missionList = new ArrayList<>();
+        String deadLine = deadLineTime();
         Mission mission1 = generateMissionFullTemplate("play basketball", "play", "sport",
-                60, "2023-06-15T10:00:00", 1, Arrays.asList("Sunday", "Monday"),
+                60, deadLine, 1, Arrays.asList("Sunday", "Monday"),
                 Arrays.asList("16:00:00", "12:00:00"));
         Mission mission2 = generateMissionFullTemplate("play football", "play", "sport",
-                60, "2023-06-15T10:00:00", 1, Arrays.asList("Wednesday"),
+                60, deadLine, 1, Arrays.asList("Wednesday"),
                 Arrays.asList("16:00:00", "12:00:00"));
         Mission mission3 = generateMissionFullTemplate("play ping pong", "play", "sport",
-                60, "2023-06-15T10:00:00", 1, Arrays.asList("Friday"),
+                60, deadLine, 1, Arrays.asList("Friday"),
                 Arrays.asList("16:00:00", "12:00:00"));
 
         missionList.add(mission1);

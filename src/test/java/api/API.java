@@ -151,7 +151,7 @@ public class API {
         Response response = given()
                 .header("Authorization", "Bearer " + token)
                 .when()
-                .delete("/Users/" + userId)
+                .delete("/Users")
                 .then()
                 .extract().response();
 
