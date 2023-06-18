@@ -351,13 +351,13 @@ public class API {
                 .header("Authorization", "Bearer " + token)
                 .body(requestBody.toJson()) // Pass the request body in the POST request
                 .when()
-                .post("/algo") // Change the HTTP method to POST
+                .post("/algo")
                 .then()
                 .extract().response();
-
+        System.out.println("Algo input: " + response.getBody().asString());
         // Assert that the POST request was successful
         Assert.assertEquals(200, response.getStatusCode());
-        System.out.println("Algo output: " + response.getBody().asString());
+        System.out.println("Algo Success!");
     }
 
 

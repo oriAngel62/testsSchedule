@@ -70,13 +70,13 @@ public class MissionGenerator{
     public static List<Mission> generateMissionList() {
         List<Mission> missionList = new ArrayList<>();
         Mission mission1 = generateMissionFullTemplate("play basketball", "play", "sport",
-                60, "2023-06-10T10:00:00", 1, Arrays.asList("Sunday", "Monday"),
+                60, "2023-06-15T10:00:00", 1, Arrays.asList("Sunday", "Monday"),
                 Arrays.asList("16:00:00", "12:00:00"));
         Mission mission2 = generateMissionFullTemplate("play football", "play", "sport",
-                60, "2023-06-10T10:00:00", 1, Arrays.asList("Wednesday"),
+                60, "2023-06-15T10:00:00", 1, Arrays.asList("Wednesday"),
                 Arrays.asList("16:00:00", "12:00:00"));
         Mission mission3 = generateMissionFullTemplate("play ping pong", "play", "sport",
-                60, "2023-06-10T10:00:00", 1, Arrays.asList("Friday"),
+                60, "2023-06-15T10:00:00", 1, Arrays.asList("Friday"),
                 Arrays.asList("16:00:00", "12:00:00"));
 
         missionList.add(mission1);

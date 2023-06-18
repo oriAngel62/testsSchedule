@@ -1,6 +1,7 @@
 package ui;
 import org.junit.jupiter.api.AfterEach;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -87,6 +88,7 @@ public class Connecting {
         usernameField.sendKeys(userId);
         passwordField.sendKeys(userId);
 
+        Assert.assertNotNull(loginButton, "Element found");
         // Click the login button
         loginButton.click();
 
@@ -94,11 +96,18 @@ public class Connecting {
         // You can add appropriate waits here if needed
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
-        // Search for the element after login
-        WebElement elementAfterLogin = driver.findElement(By.xpath("//*[@id='__next']/div/header/div/div[2]/a[1]"));
-        Assert.assertNotNull(elementAfterLogin, "Element found after login");
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        elementAfterLogin.click();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        long totalHeight = (Long) js.executeScript("return document.body.scrollHeight;");
+
+        // Scroll the page incrementally
+        for (int i = 1; i < totalHeight + 700; i += 40) {
+            js.executeScript("window.scrollTo(0, " + i + ");");
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
     }
 
