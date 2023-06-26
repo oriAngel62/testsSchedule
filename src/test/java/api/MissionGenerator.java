@@ -81,7 +81,7 @@ public class MissionGenerator{
 
         // Format the end of the week date and time
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        String formattedEndOfWeek = endOfWeek.atTime(23, 59, 59).format(formatter);
+        String formattedEndOfWeek = endOfWeek.atTime(18, 00, 00).format(formatter);
 
         return formattedEndOfWeek;
 
@@ -89,17 +89,22 @@ public class MissionGenerator{
 
     //chang
     public static List<Mission> generateMissionList() {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDate dateTime = currentDateTime.toLocalDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        String end = dateTime.atTime(16, 00, 00).format(formatter);
+        String start = dateTime.atTime(12, 00, 00).format(formatter);
         List<Mission> missionList = new ArrayList<>();
         String deadLine = deadLineTime();
         Mission mission1 = generateMissionFullTemplate("play basketball", "play", "sport",
                 60, deadLine, 1, Arrays.asList("Sunday", "Monday"),
-                Arrays.asList("16:00:00", "12:00:00"));
+                Arrays.asList(end, start));
         Mission mission2 = generateMissionFullTemplate("play football", "play", "sport",
                 60, deadLine, 1, Arrays.asList("Wednesday"),
-                Arrays.asList("16:00:00", "12:00:00"));
+                Arrays.asList(end, start));
         Mission mission3 = generateMissionFullTemplate("play ping pong", "play", "sport",
                 60, deadLine, 1, Arrays.asList("Friday"),
-                Arrays.asList("16:00:00", "12:00:00"));
+                Arrays.asList(end, start));
 
         missionList.add(mission1);
         missionList.add(mission2);
