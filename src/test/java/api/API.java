@@ -32,13 +32,6 @@ public class API {
     private static List<Mission> missionList;
 
 
-//    @BeforeClass
-//    public static void setup() {
-//        RestAssured.baseURI = "https://localhost:7204/api";
-//        RestAssured.config = RestAssured.config().sslConfig(new SSLConfig().relaxedHTTPSValidation());
-//        userId = getSaltString();
-//    }
-
     private static String getSaltString() {
         String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder salt = new StringBuilder();
