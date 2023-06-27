@@ -99,13 +99,10 @@ public class API {
     }
     @Test
     public void basicFlow() {
-//        createUser();
-//        loginTest();
         addMissionTest(mission);
         getAndFindMission();
         changeMission();
         deleteMission();
-//        deleteUser();
     }
 
     @Test
@@ -132,7 +129,6 @@ public class API {
     @Test
     public void suggestMissionFlow() {
         addMissionTest(mission);
-        //deleteUser();
         createUserAndLogIn();
         suggestMissionsTest();
     }
