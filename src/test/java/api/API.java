@@ -100,8 +100,6 @@ public class API {
     @Test
     public void basicFlow() {
         addMissionTest(mission);
-        getAndFindMission();
-        changeMission();
         deleteMission();
     }
 

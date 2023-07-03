@@ -76,6 +76,11 @@ public class Connecting {
 
     @Test
     public void testSignIn() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // Navigate to the login page
         driver.get(baseUrl + "/in/sign-in");
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
@@ -94,13 +99,17 @@ public class Connecting {
 
         // Wait for the page to load after login
         // You can add appropriate waits here if needed
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         JavascriptExecutor js = (JavascriptExecutor) driver;
         long totalHeight = (Long) js.executeScript("return document.body.scrollHeight;");
 
         // Scroll the page incrementally
-        for (int i = 1; i < totalHeight + 700; i += 40) {
+        for (int i = 1; i < totalHeight; i += 40) {
             js.executeScript("window.scrollTo(0, " + i + ");");
             try {
                 Thread.sleep(300);
@@ -108,7 +117,6 @@ public class Connecting {
                 e.printStackTrace();
             }
         }
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
     }
 
     @AfterEach
